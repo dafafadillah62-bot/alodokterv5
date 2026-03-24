@@ -1,6 +1,7 @@
 import React from 'react';
 import { MessageSquare, Stethoscope, ShoppingBag, Calendar, Pill, HeartPulse, Activity, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 
 const categories = [
   { icon: MessageSquare, label: 'Chat Dokter', color: 'bg-blue-500', textColor: 'text-blue-500', desc: 'Konsultasi instan 24/7' },
@@ -14,6 +15,12 @@ const categories = [
 ];
 
 export default function CategoryGrid({ onChatClick }: { onChatClick: () => void }) {
+  const handleComingSoon = (feature: string) => {
+    toast.info(`Fitur ${feature} akan segera hadir!`, {
+      description: 'Kami sedang bekerja keras untuk menghadirkan fitur ini untuk Anda.',
+    });
+  };
+
   return (
     <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between mb-8">
@@ -21,7 +28,12 @@ export default function CategoryGrid({ onChatClick }: { onChatClick: () => void 
           <h2 className="text-2xl font-bold text-gray-900">Layanan Kami</h2>
           <p className="text-gray-500 mt-1">Pilih layanan kesehatan yang Anda butuhkan</p>
         </div>
-        <button className="text-blue-600 font-semibold hover:underline text-sm">Lihat Semua</button>
+        <button 
+          onClick={() => handleComingSoon('Daftar Layanan')}
+          className="text-blue-600 font-semibold hover:underline text-sm"
+        >
+          Lihat Semua
+        </button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -30,7 +42,7 @@ export default function CategoryGrid({ onChatClick }: { onChatClick: () => void 
             key={i}
             whileHover={{ y: -5 }}
             whileTap={{ scale: 0.95 }}
-            onClick={cat.label === 'Chat Dokter' ? onChatClick : undefined}
+            onClick={cat.label === 'Chat Dokter' ? onChatClick : () => handleComingSoon(cat.label)}
             className="flex flex-col items-center p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all text-center group"
           >
             <div className={`w-14 h-14 ${cat.color} rounded-2xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform shadow-lg`}>

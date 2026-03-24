@@ -4,8 +4,10 @@ import Hero from './components/Hero';
 import CategoryGrid from './components/CategoryGrid';
 import ArticleCard from './components/ArticleCard';
 import DoctorCard from './components/DoctorCard';
+import ProductCard from './components/ProductCard';
+import MCUPackageCard from './components/MCUPackageCard';
 import DoctorChat from './components/DoctorChat';
-import { MessageSquare, ChevronRight, Heart, Share2, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import { MessageSquare, ChevronRight, Heart, Share2, Facebook, Twitter, Instagram, Youtube, ShoppingBag, Activity } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Toaster, toast } from 'sonner';
 
@@ -76,6 +78,63 @@ const doctors = [
   }
 ];
 
+const products = [
+  {
+    name: "Panadol Extra 10 Kaplet",
+    category: "Obat Bebas",
+    price: "Rp 12.500",
+    image: "https://picsum.photos/seed/panadol/300/300",
+    discount: "10%",
+    rating: 4.9
+  },
+  {
+    name: "Enervon-C Multivitamin 30 Tablet",
+    category: "Vitamin & Suplemen",
+    price: "Rp 45.000",
+    image: "https://picsum.photos/seed/vitamin/300/300",
+    rating: 4.8
+  },
+  {
+    name: "Masker Medis 3-Ply 50 Pcs",
+    category: "Alat Kesehatan",
+    price: "Rp 25.000",
+    image: "https://picsum.photos/seed/mask/300/300",
+    discount: "20%",
+    rating: 4.7
+  },
+  {
+    name: "Betadine Antiseptic Solution 30ml",
+    category: "P3K",
+    price: "Rp 32.000",
+    image: "https://picsum.photos/seed/betadine/300/300",
+    rating: 4.9
+  }
+];
+
+const mcuPackages = [
+  {
+    name: "Paket Skrining Diabetes",
+    price: "Rp 450.000",
+    hospital: "RS Siloam Kebon Jeruk",
+    features: ["Gula Darah Puasa", "HbA1c", "Konsultasi Dokter Umum"],
+    image: "https://picsum.photos/seed/diabetesmcu/600/400"
+  },
+  {
+    name: "Paket Jantung Sehat",
+    price: "Rp 1.250.000",
+    hospital: "RS Mayapada",
+    features: ["EKG", "Rontgen Thorax", "Profil Lipid", "Konsultasi Spesialis Jantung"],
+    image: "https://picsum.photos/seed/heartmcu/600/400"
+  },
+  {
+    name: "Paket Pra-Nikah (Pria/Wanita)",
+    price: "Rp 850.000",
+    hospital: "RSIA Bunda Jakarta",
+    features: ["Hematologi Lengkap", "Golongan Darah", "Urinalisis", "Konsultasi Dokter"],
+    image: "https://picsum.photos/seed/preweddingmcu/600/400"
+  }
+];
+
 export interface Appointment {
   id: string;
   doctorName: string;
@@ -90,6 +149,27 @@ export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredDoctors = doctors.filter(doc => 
+    doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.hospital.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredArticles = articles.filter(article => 
+    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query) {
+      toast.success(`Menampilkan hasil pencarian untuk "${query}"`, {
+        duration: 2000,
+      });
+    }
+  };
 
   const handleChatWithDoctor = (doctor: Doctor) => {
     setSelectedDoctor(doctor);
@@ -131,13 +211,19 @@ export default function App() {
     }, 5000);
   };
 
+  const handleComingSoon = (feature: string) => {
+    toast.info(`Fitur ${feature} akan segera hadir!`, {
+      description: 'Kami sedang bekerja keras untuk menghadirkan fitur ini untuk Anda.',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
       <Toaster position="top-right" richColors />
-      <Navbar appointments={appointments} />
+      <Navbar appointments={appointments} onSearch={handleSearch} />
       
       <main>
-        <Hero />
+        <Hero onSearch={handleSearch} />
         
         <CategoryGrid onChatClick={handleGeneralChat} />
 
@@ -146,22 +232,70 @@ export default function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Dokter Pilihan</h2>
-                <p className="text-gray-500 mt-1">Konsultasi dengan dokter spesialis terbaik</p>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {searchQuery ? `Hasil Pencarian Dokter: "${searchQuery}"` : 'Dokter Pilihan'}
+                </h2>
+                <p className="text-gray-500 mt-1">
+                  {searchQuery ? `Ditemukan ${filteredDoctors.length} dokter` : 'Konsultasi dengan dokter spesialis terbaik'}
+                </p>
               </div>
-              <button className="text-blue-600 font-semibold hover:underline text-sm flex items-center gap-1">
+              <button 
+                onClick={() => handleComingSoon('Daftar Dokter')}
+                className="text-blue-600 font-semibold hover:underline text-sm flex items-center gap-1"
+              >
                 Lihat Semua <ChevronRight size={16} />
               </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {doctors.map((doc, i) => (
-                <DoctorCard 
-                  key={i} 
-                  {...doc} 
-                  onChat={() => handleChatWithDoctor(doc)} 
-                  onBook={() => handleBookAppointment(doc)}
-                />
+            {filteredDoctors.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredDoctors.map((doc, i) => (
+                  <DoctorCard 
+                    key={i} 
+                    {...doc} 
+                    onChat={() => handleChatWithDoctor(doc)} 
+                    onBook={() => handleBookAppointment(doc)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+                <p className="text-gray-500">Tidak ada dokter yang cocok dengan pencarian Anda.</p>
+                <button 
+                  onClick={() => handleSearch('')}
+                  className="mt-4 text-blue-600 font-bold hover:underline"
+                >
+                  Reset Pencarian
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Pharmacy Section */}
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
+                  <ShoppingBag size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Toko Kesehatan</h2>
+                  <p className="text-gray-500 mt-1">Beli obat dan vitamin lebih mudah dan terpercaya</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => handleComingSoon('Toko Kesehatan')}
+                className="text-blue-600 font-semibold hover:underline text-sm flex items-center gap-1"
+              >
+                Lihat Semua <ChevronRight size={16} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {products.map((product, i) => (
+                <ProductCard key={i} {...product} />
               ))}
             </div>
           </div>
@@ -172,17 +306,59 @@ export default function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Artikel Kesehatan Terbaru</h2>
-                <p className="text-gray-500 mt-1">Informasi kesehatan terpercaya untuk Anda</p>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {searchQuery ? `Hasil Pencarian Artikel: "${searchQuery}"` : 'Artikel Kesehatan Terbaru'}
+                </h2>
+                <p className="text-gray-500 mt-1">
+                  {searchQuery ? `Ditemukan ${filteredArticles.length} artikel` : 'Informasi kesehatan terpercaya untuk Anda'}
+                </p>
               </div>
-              <button className="text-blue-600 font-semibold hover:underline text-sm flex items-center gap-1">
+              <button 
+                onClick={() => handleComingSoon('Daftar Artikel')}
+                className="text-blue-600 font-semibold hover:underline text-sm flex items-center gap-1"
+              >
                 Lihat Semua <ChevronRight size={16} />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {articles.map((article, i) => (
-                <ArticleCard key={i} {...article} />
+            {filteredArticles.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {filteredArticles.map((article, i) => (
+                  <ArticleCard key={i} {...article} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+                <p className="text-gray-500">Tidak ada artikel yang cocok dengan pencarian Anda.</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* MCU Section */}
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center">
+                  <Activity size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Paket Medical Check-Up</h2>
+                  <p className="text-gray-500 mt-1">Pilih paket pemeriksaan kesehatan terbaik untuk Anda</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => handleComingSoon('Daftar MCU')}
+                className="text-blue-600 font-semibold hover:underline text-sm flex items-center gap-1"
+              >
+                Lihat Semua <ChevronRight size={16} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {mcuPackages.map((pkg, i) => (
+                <MCUPackageCard key={i} {...pkg} />
               ))}
             </div>
           </div>
@@ -201,10 +377,16 @@ export default function App() {
                   Dapatkan kemudahan akses kesehatan dalam genggaman. Chat dokter lebih cepat dan beli obat lebih mudah.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <button className="bg-black text-white px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-gray-900 transition-colors border border-gray-800">
+                  <button 
+                    onClick={() => handleComingSoon('Download Play Store')}
+                    className="bg-black text-white px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-gray-900 transition-colors border border-gray-800"
+                  >
                     <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Play Store" className="h-8" />
                   </button>
-                  <button className="bg-black text-white px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-gray-900 transition-colors border border-gray-800">
+                  <button 
+                    onClick={() => handleComingSoon('Download App Store')}
+                    className="bg-black text-white px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-gray-900 transition-colors border border-gray-800"
+                  >
                     <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" className="h-8" />
                   </button>
                 </div>
@@ -227,7 +409,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
             <div>
-              <div className="flex items-center gap-2 mb-6">
+              <div className="flex items-center gap-2 mb-6 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                 <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
                   <span className="text-xl font-bold">A</span>
                 </div>
@@ -238,7 +420,7 @@ export default function App() {
               </p>
               <div className="flex items-center gap-4 mt-6">
                 {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                  <button key={i} className="w-10 h-10 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">
+                  <button key={i} onClick={() => handleComingSoon('Media Sosial')} className="w-10 h-10 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">
                     <Icon size={20} />
                   </button>
                 ))}
@@ -248,27 +430,27 @@ export default function App() {
             <div>
               <h4 className="font-bold text-gray-900 mb-6">Layanan</h4>
               <ul className="space-y-4 text-sm text-gray-500">
-                <li><button className="hover:text-blue-600 transition-colors">Chat Dokter</button></li>
-                <li><button className="hover:text-blue-600 transition-colors">Booking Rumah Sakit</button></li>
-                <li><button className="hover:text-blue-600 transition-colors">Toko Kesehatan</button></li>
-                <li><button className="hover:text-blue-600 transition-colors">Aloproteksi</button></li>
+                <li><button onClick={() => handleComingSoon('Chat Dokter')} className="hover:text-blue-600 transition-colors">Chat Dokter</button></li>
+                <li><button onClick={() => handleComingSoon('Booking Rumah Sakit')} className="hover:text-blue-600 transition-colors">Booking Rumah Sakit</button></li>
+                <li><button onClick={() => handleComingSoon('Toko Kesehatan')} className="hover:text-blue-600 transition-colors">Toko Kesehatan</button></li>
+                <li><button onClick={() => handleComingSoon('Aloproteksi')} className="hover:text-blue-600 transition-colors">Aloproteksi</button></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-gray-900 mb-6">Perusahaan</h4>
               <ul className="space-y-4 text-sm text-gray-500">
-                <li><button className="hover:text-blue-600 transition-colors">Tentang Kami</button></li>
-                <li><button className="hover:text-blue-600 transition-colors">Karir</button></li>
-                <li><button className="hover:text-blue-600 transition-colors">Kontak Kami</button></li>
-                <li><button className="hover:text-blue-600 transition-colors">Syarat & Ketentuan</button></li>
+                <li><button onClick={() => handleComingSoon('Tentang Kami')} className="hover:text-blue-600 transition-colors">Tentang Kami</button></li>
+                <li><button onClick={() => handleComingSoon('Karir')} className="hover:text-blue-600 transition-colors">Karir</button></li>
+                <li><button onClick={() => handleComingSoon('Kontak Kami')} className="hover:text-blue-600 transition-colors">Kontak Kami</button></li>
+                <li><button onClick={() => handleComingSoon('Syarat & Ketentuan')} className="hover:text-blue-600 transition-colors">Syarat & Ketentuan</button></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold text-gray-900 mb-6">Hubungi Kami</h4>
               <p className="text-sm text-gray-500 mb-4">Punya pertanyaan? Kami siap membantu Anda.</p>
-              <button className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md">
+              <button onClick={() => handleComingSoon('Support')} className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md">
                 Hubungi Support
               </button>
             </div>
@@ -277,8 +459,8 @@ export default function App() {
           <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-400">© 2026 Alodokter. Hak Cipta Dilindungi.</p>
             <div className="flex items-center gap-6 text-sm text-gray-400">
-              <button className="hover:text-blue-600 transition-colors">Kebijakan Privasi</button>
-              <button className="hover:text-blue-600 transition-colors">Keamanan</button>
+              <button onClick={() => handleComingSoon('Kebijakan Privasi')} className="hover:text-blue-600 transition-colors">Kebijakan Privasi</button>
+              <button onClick={() => handleComingSoon('Keamanan')} className="hover:text-blue-600 transition-colors">Keamanan</button>
             </div>
           </div>
         </div>

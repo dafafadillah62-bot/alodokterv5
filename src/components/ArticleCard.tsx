@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Clock, ChevronRight } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ArticleProps {
   title: string;
@@ -10,9 +11,16 @@ interface ArticleProps {
 }
 
 export default function ArticleCard({ title, category, image, readTime }: ArticleProps) {
+  const handleComingSoon = () => {
+    toast.info(`Artikel "${title}" akan segera hadir!`, {
+      description: 'Kami sedang menyiapkan konten kesehatan terbaik untuk Anda.',
+    });
+  };
+
   return (
     <motion.div 
       whileHover={{ y: -8 }}
+      onClick={handleComingSoon}
       className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 cursor-pointer group"
     >
       <div className="relative h-48 overflow-hidden">

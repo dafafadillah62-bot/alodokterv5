@@ -1,8 +1,23 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Search, MapPin, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 
-export default function Hero() {
+export default function Hero({ onSearch }: { onSearch: (query: string) => void }) {
+  const [searchValue, setSearchValue] = React.useState('');
+  const [locationValue, setLocationValue] = React.useState('');
+
+  const handleComingSoon = (feature: string) => {
+    toast.info(`Fitur ${feature} akan segera hadir!`, {
+      description: 'Kami sedang bekerja keras untuk menghadirkan fitur ini untuk Anda.',
+    });
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(searchValue);
+  };
+
   return (
     <div className="relative bg-blue-50 overflow-hidden py-16 sm:py-24">
       {/* Background Decorative Elements */}
@@ -23,11 +38,13 @@ export default function Hero() {
               Chat dokter, booking rumah sakit, beli obat, hingga update informasi kesehatan terbaru hanya dalam satu aplikasi.
             </p>
 
-            <div className="mt-10 bg-white p-2 rounded-2xl shadow-xl border border-gray-100 flex flex-col sm:flex-row gap-2">
+            <form onSubmit={handleSearchSubmit} className="mt-10 bg-white p-2 rounded-2xl shadow-xl border border-gray-100 flex flex-col sm:flex-row gap-2">
               <div className="flex-1 flex items-center px-4 gap-3 border-b sm:border-b-0 sm:border-r border-gray-100 py-3">
                 <Search className="text-blue-500" size={20} />
                 <input 
                   type="text" 
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
                   placeholder="Cari dokter atau spesialis..." 
                   className="w-full focus:outline-none text-sm"
                 />
@@ -36,15 +53,21 @@ export default function Hero() {
                 <MapPin className="text-blue-500" size={20} />
                 <input 
                   type="text" 
+                  value={locationValue}
+                  onChange={(e) => setLocationValue(e.target.value)}
                   placeholder="Lokasi Anda..." 
                   className="w-full focus:outline-none text-sm"
+                  onKeyDown={(e) => e.key === 'Enter' && handleComingSoon('Lokasi')}
                 />
               </div>
-              <button className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2 group">
+              <button 
+                type="submit"
+                className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2 group"
+              >
                 Cari
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
-            </div>
+            </form>
 
             <div className="mt-8 flex items-center gap-6 text-sm text-gray-500">
               <div className="flex -space-x-2">
