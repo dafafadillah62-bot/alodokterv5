@@ -1,0 +1,8 @@
+{
+  "name": "Alodokter Clone",
+  "description": "A comprehensive health platform clone with AI doctor chat, appointment booking, and health articles.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
